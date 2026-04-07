@@ -40,7 +40,7 @@ App (qualquer) → InetAddress.getByName("exemplo.com")
 
 ```bash
 # Dentro do seu AOSP root:
-git clone https://github.com/SEU_USER/android_packages_apps_SiteBlocker \
+git clone https://github.com/HeroRickyGAMES/packages_apps_SiteBlocker \
     packages/apps/SiteBlocker
 ```
 
@@ -48,7 +48,7 @@ Ou via `.repo/local_manifests/siteblocker.xml`:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <remote name="github" fetch="https://github.com/SEU_USER" />
+  <remote name="github" fetch="https://github.com/HeroRickyGAMES" />
   <project name="android_packages_apps_SiteBlocker"
            path="packages/apps/SiteBlocker"
            remote="github"
