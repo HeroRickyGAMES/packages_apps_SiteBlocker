@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Privileged permissions for SiteBlocker.
+    The app runs as sharedUserId=android.uid.system so it already has
+    direct filesystem access to /data/system/. These declarations satisfy
+    the package manager's signature|privileged permission check.
+-->
+<permissions>
+    <privapp-permissions package="com.android.siteblocker">
+        <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
+    </privapp-permissions>
+</permissions>

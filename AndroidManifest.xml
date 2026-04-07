@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.siteblocker"
+    android:sharedUserId="android.uid.system"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+    <!--
+        sharedUserId=system gives us UID 1000 (system), which can write to
+        /data/system/. No additional permission is needed for file access.
+        WRITE_SECURE_SETTINGS is still declared so the app can optionally
+        clear/reset Settings.Global values if desired in the future.
+    -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_site_blocker"
+        android:theme="@android:style/Theme.DeviceDefault.Settings"
+        android:supportsRtl="true">
+
+        <activity
+            android:name=".SiteBlockerActivity"
+            android:label="@string/app_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- Deep-link from Settings > Network -->
+            <intent-filter>
+                <action android:name="com.android.siteblocker.ACTION_MANAGE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            ContentProvider so privileged callers (e.g. Settings) can
+            reload the blocklist after writing. Not exported to third-party.
+        -->
+        <provider
+            android:name=".SiteBlockerProvider"
+            android:authorities="com.android.siteblocker.provider"
+            android:exported="false"
+            android:protectionLevel="signature|privileged" />
+
+    </application>
+</manifest>

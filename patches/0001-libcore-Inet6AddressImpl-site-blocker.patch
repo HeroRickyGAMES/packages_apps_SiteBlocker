@@ -1,0 +1,91 @@
+From: SiteBlocker Module <noreply@android>
+Subject: [PATCH] libcore: Add file-based site-blocker hook in Inet6AddressImpl
+
+--- a/libcore/ojluni/src/main/java/java/net/Inet6AddressImpl.java
++++ b/libcore/ojluni/src/main/java/java/net/Inet6AddressImpl.java
+@@ -37,7 +37,14 @@ import dalvik.system.BlockGuard;
+ import libcore.io.IoBridge;
+ import libcore.io.Libcore;
+ 
++import java.io.BufferedReader;
++import java.io.File;
+ import java.io.FileDescriptor;
++import java.io.FileReader;
+ import java.io.IOException;
++import java.util.Collections;
++import java.util.HashSet;
++import java.util.Set;
++import java.util.concurrent.atomic.AtomicReference;
+ import libcore.net.InetAddressUtils;
+ 
+ import static android.system.OsConstants.AF_INET;
+@@ -70,6 +77,58 @@ import static android.system.OsConstants.SOCK_STREAM;
+ 
+ class Inet6AddressImpl implements InetAddressImpl {
+ 
++    // BEGIN Android-added: Site blocker support (SiteBlocker module)
++    private static final String SITE_BLOCKER_FILE = "/data/system/site_blocker_domains";
++    private static final AtomicReference<Set<String>> sSiteBlockerDomains =
++            new AtomicReference<>(Collections.<String>emptySet());
++    private static volatile long sSiteBlockerFileModified = -1L;
++    private static volatile long sSiteBlockerLastCheck = 0L;
++    private static final long SITE_BLOCKER_CHECK_INTERVAL_MS = 5000L;
++
++    private static boolean isSiteBlocked(String host) {
++        long now = System.currentTimeMillis();
++        if (now - sSiteBlockerLastCheck > SITE_BLOCKER_CHECK_INTERVAL_MS) {
++            sSiteBlockerLastCheck = now;
++            try {
++                File f = new File(SITE_BLOCKER_FILE);
++                if (!f.exists()) {
++                    sSiteBlockerDomains.set(Collections.<String>emptySet());
++                    sSiteBlockerFileModified = -1L;
++                } else {
++                    long lm = f.lastModified();
++                    if (lm != sSiteBlockerFileModified) {
++                        sSiteBlockerFileModified = lm;
++                        Set<String> domains = new HashSet<String>();
++                        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
++                            String line;
++                            while ((line = br.readLine()) != null) {
++                                line = line.trim().toLowerCase();
++                                if (!line.isEmpty() && !line.startsWith("#")) {
++                                    domains.add(line);
++                                }
++                            }
++                        }
++                        sSiteBlockerDomains.set(Collections.unmodifiableSet(domains));
++                    }
++                }
++            } catch (Exception ignored) {
++            }
++        }
++        Set<String> blocked = sSiteBlockerDomains.get();
++        if (blocked.isEmpty()) return false;
++        String h = host.toLowerCase();
++        if (blocked.contains(h)) return true;
++        int dot = h.indexOf('.');
++        while (dot >= 0 && dot < h.length() - 1) {
++            if (blocked.contains(h.substring(dot + 1))) return true;
++            dot = h.indexOf('.', dot + 1);
++        }
++        return false;
++    }
++    // END Android-added: Site blocker support
++
+     // @GuardedBy(Inet6AddressImpl.class)
+     private static InetAddress anyLocalAddress;
+     // @GuardedBy(Inet6AddressImpl.class)
+@@ -95,6 +154,12 @@ class Inet6AddressImpl implements InetAddressImpl {
+             return loopbackAddresses();
+         }
+ 
++        // BEGIN Android-added: Site blocker support
++        if (isSiteBlocked(host)) {
++            throw new UnknownHostException(host + ": blocked by SiteBlocker");
++        }
++        // END Android-added: Site blocker support
++
+         // Is it a numeric address?
+         InetAddress result = InetAddressUtils.parseNumericAddressNoThrowStripOptionalBrackets(host);
+         if (result != null) {

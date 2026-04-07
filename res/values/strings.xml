@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bloqueador de Sites</string>
+    <string name="empty_list">Nenhum site bloqueado</string>
+    <string name="action_add">Adicionar</string>
+    <string name="action_remove">Remover</string>
+    <string name="menu_clear_all">Limpar tudo</string>
+    <string name="confirm_clear_title">Limpar lista?</string>
+    <string name="confirm_clear_message">Todos os domínios bloqueados serão removidos.</string>
+    <string name="dialog_add_title">Adicionar domínio</string>
+    <string name="domain_hint">ex: exemplo.com</string>
+    <string name="domain_hint_detail">Subdomínios são bloqueados automaticamente. Não inclua http:// ou www.</string>
+    <string name="error_read">Erro ao ler lista de bloqueio</string>
+    <string name="error_write">Erro ao salvar lista de bloqueio</string>
+    <string name="error_invalid_domain">Domínio inválido</string>
+    <string name="error_already_exists">Domínio já está na lista</string>
+</resources>

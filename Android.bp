@@ -1,0 +1,31 @@
+// Copyright (C) 2024 Android Open Source Project
+// SPDX-License-Identifier: Apache-2.0
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "SiteBlocker",
+    certificate: "platform",
+    platform_apis: true,
+    privileged: true,
+
+    srcs: [
+        "src/**/*.java",
+    ],
+
+    resource_dirs: ["res"],
+
+    required: [
+        "privapp-permissions-SiteBlocker",
+    ],
+}
+
+prebuilt_etc {
+    name: "privapp-permissions-SiteBlocker",
+    system_ext_specific: false,
+    sub_dir: "permissions",
+    src: "privapp-permissions/privapp-permissions-SiteBlocker.xml",
+    filename_from_src: true,
+}
